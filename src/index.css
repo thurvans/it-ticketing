@@ -1,0 +1,188 @@
+@import url("https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --panel-muted: #f8fafc;
+  --line: #d9e1ec;
+  --text: #102033;
+  --muted: #5f6f84;
+  --primary: #16346d;
+  --primary-soft: #dce9ff;
+  --success: #0f8a52;
+  --warning: #b96f0d;
+  --danger: #b42318;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Public Sans", "Segoe UI", Tahoma, sans-serif;
+  color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(245, 247, 251, 0.96)),
+    linear-gradient(90deg, rgba(22, 52, 109, 0.06) 0, rgba(22, 52, 109, 0) 28%);
+  background-attachment: fixed;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: #dce9ff;
+  color: #0d1c38;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight text-slate-950;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-2xl border border-slate-200/80 bg-white shadow-panel;
+  }
+
+  .panel-muted {
+    @apply rounded-xl border border-slate-200/90 bg-slate-50/80;
+  }
+
+  .section-title {
+    @apply text-base font-semibold text-slate-950 sm:text-lg;
+  }
+
+  .section-copy {
+    @apply text-sm leading-6 text-slate-500;
+  }
+
+  .input {
+    @apply min-h-[44px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 shadow-sm outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
+  }
+
+  .textarea {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
+  }
+
+  .select {
+    @apply input appearance-none;
+  }
+
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-700 text-white shadow-sm shadow-brand-900/10 hover:bg-brand-900;
+  }
+
+  .btn-secondary {
+    @apply btn border border-slate-300 bg-white text-slate-700 shadow-sm hover:border-brand-300 hover:text-brand-700;
+  }
+
+  .btn-danger {
+    @apply btn bg-rose-600 text-white hover:bg-rose-700;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold;
+  }
+
+  .table-shell {
+    @apply overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-panel;
+  }
+
+  .table-scroll {
+    @apply overflow-x-auto;
+  }
+
+  .table {
+    @apply min-w-full border-collapse;
+  }
+
+  .table th {
+    @apply border-b border-slate-200 bg-slate-50/90 px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.12em] text-slate-500;
+  }
+
+  .table td {
+    @apply border-b border-slate-100 px-4 py-4 align-top text-sm text-slate-700;
+  }
+
+  .table tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .table tr:hover td {
+    @apply bg-slate-50/90;
+  }
+
+  .surface {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-panel;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #edf2f7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c4cedd;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aab6ca;
+}
+
+@media (max-width: 639px) {
+  body {
+    background-attachment: scroll;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
