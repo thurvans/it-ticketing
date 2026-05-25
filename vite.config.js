@@ -18,30 +18,43 @@ function trimTrailingSlash(value = "") {
   return String(value).replace(/\/+$/, "");
 }
 
-function readRuntimeConfig() {
+function appendApiPath(value = "") {
+  const normalized = trimTrailingSlash(value);
+  return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+}
+
+function readRuntimeConfig(mode) {
   const baseEnv = loadEnv("base", backendEnvDir, "");
-  const appEnv = normalizeAppEnv(baseEnv.APP_ENV, "development");
+  const appEnv = normalizeAppEnv(process.env.APP_ENV || baseEnv.APP_ENV || mode, "development");
+  const rootEnv = loadEnv(mode, process.cwd(), "");
   const mergedEnv = {
+    ...baseEnv,
     ...loadEnv(appEnv, backendEnvDir, ""),
+    ...rootEnv,
     ...process.env,
   };
-  const frontendOrigin = trimTrailingSlash(mergedEnv.FRONTEND_ORIGIN || "http://localhost:5173");
+  const vercelOrigin = mergedEnv.VERCEL_URL ? `https://${mergedEnv.VERCEL_URL}` : "";
+  const frontendOrigin = trimTrailingSlash(
+    mergedEnv.VITE_APP_BASE_URL || mergedEnv.FRONTEND_ORIGIN || mergedEnv.FRONTEND_APP_URL || vercelOrigin || "http://localhost:5173",
+  );
   const frontendUrl = new URL(frontendOrigin);
   const backendPort = toNumber(mergedEnv.PORT, 3001);
-  const apiPublicUrl = trimTrailingSlash(mergedEnv.API_PUBLIC_URL || `http://localhost:${backendPort}`);
+  const apiBaseUrl = trimTrailingSlash(
+    mergedEnv.VITE_API_BASE_URL || appendApiPath(mergedEnv.API_PUBLIC_URL || `http://localhost:${backendPort}`),
+  );
 
   return {
     appEnv,
-    appName: mergedEnv.APP_NAME || "IT Ticketing System",
+    appName: mergedEnv.VITE_APP_NAME || mergedEnv.APP_NAME || "IT Ticketing System",
     frontendOrigin,
     frontendHost: frontendUrl.hostname,
     frontendPort: toNumber(frontendUrl.port, 5173),
-    apiBaseUrl: `${apiPublicUrl}/api`,
+    apiBaseUrl,
   };
 }
 
-export default defineConfig(() => {
-  const runtimeConfig = readRuntimeConfig();
+export default defineConfig(({ mode }) => {
+  const runtimeConfig = readRuntimeConfig(mode);
   const previewPort = runtimeConfig.frontendPort === 5173 ? 4173 : runtimeConfig.frontendPort + 100;
 
   return {
