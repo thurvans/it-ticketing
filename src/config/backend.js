@@ -1,6 +1,11 @@
 const rawApiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
 
-export const apiBaseUrl = rawApiBaseUrl.replace(/\/+$/, "");
+function normalizeApiBaseUrl(value = "") {
+  const normalized = String(value).replace(/\/+$/, "");
+  return normalized && !normalized.endsWith("/api") ? `${normalized}/api` : normalized;
+}
+
+export const apiBaseUrl = normalizeApiBaseUrl(rawApiBaseUrl);
 export const isBackendConfigured = Boolean(apiBaseUrl);
 export const BACKEND_SESSION_KEY = "it-ticketing-backend-session";
 

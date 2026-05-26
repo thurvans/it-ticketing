@@ -39,8 +39,8 @@ function readRuntimeConfig(mode) {
   );
   const frontendUrl = new URL(frontendOrigin);
   const backendPort = toNumber(mergedEnv.PORT, 3001);
-  const apiBaseUrl = trimTrailingSlash(
-    mergedEnv.VITE_API_BASE_URL || appendApiPath(mergedEnv.API_PUBLIC_URL || `http://localhost:${backendPort}`),
+  const apiBaseUrl = appendApiPath(
+    mergedEnv.VITE_API_BASE_URL || mergedEnv.API_PUBLIC_URL || `http://localhost:${backendPort}`,
   );
 
   return {
