@@ -119,12 +119,66 @@ Backend akan otomatis:
 - Jika perlu override per environment, Anda bisa menambahkan file seperti `backend/.env.production`
 - Frontend tidak lagi membutuhkan `.env` terpisah untuk `VITE_API_BASE_URL`, `VITE_APP_BASE_URL`, atau `VITE_APP_NAME`
 
-## Deploy Frontend ke Vercel
+## Deploy ke Vercel dengan Frontend dan Backend Terpisah
 
-Project sudah menyertakan [vercel.json](</c:/webtiketingit/vercel.json>) untuk build Vite dan rewrite React Router ke `index.html`.
+Project ini disiapkan sebagai dua project Vercel dari repository yang sama:
 
-1. Pastikan backend Express sudah online lebih dulu di layanan Node.js terpisah.
-2. Buat project baru di Vercel dari repository ini.
+- Frontend: Root Directory repository utama, memakai [vercel.json](</c:/webtiketingit/vercel.json>)
+- Backend: Root Directory `backend`, memakai [backend/vercel.json](</c:/webtiketingit/backend/vercel.json>)
+
+Deploy backend terlebih dahulu supaya URL API sudah tersedia saat frontend dibuild.
+
+### Backend Vercel
+
+1. Buat project baru di Vercel dari repository ini.
+2. Set Root Directory ke:
+
+```txt
+backend
+```
+
+3. Gunakan konfigurasi berikut:
+
+```txt
+Framework Preset: Other
+Build Command: dikosongkan
+Install Command: npm install
+Output Directory: dikosongkan
+```
+
+4. Isi Environment Variables backend:
+
+```txt
+APP_ENV=production
+APP_NAME=IT Ticketing System
+API_PUBLIC_URL=https://domain-backend-anda.vercel.app
+DATABASE_URL=postgresql://user:password@host:5432/database
+DATABASE_SSL=true
+AUTO_CREATE_DATABASE=false
+FRONTEND_ORIGIN=https://domain-frontend-anda.vercel.app
+FRONTEND_APP_URL=https://domain-frontend-anda.vercel.app
+JWT_SECRET=isi-dengan-secret-panjang-dan-acak
+JWT_EXPIRES_IN=7d
+```
+
+Jika memakai Preview Deployment Vercel, `FRONTEND_ORIGIN` bisa berisi beberapa origin dipisahkan koma:
+
+```txt
+FRONTEND_ORIGIN=https://domain-frontend-anda.vercel.app,https://preview-frontend-anda.vercel.app
+```
+
+5. Setelah deploy, cek endpoint:
+
+```txt
+https://domain-backend-anda.vercel.app/api/health
+```
+
+### Frontend Vercel
+
+Project utama sudah menyertakan [vercel.json](</c:/webtiketingit/vercel.json>) untuk build Vite dan rewrite React Router ke `index.html`.
+
+1. Buat project Vercel kedua dari repository yang sama.
+2. Set Root Directory ke root repository.
 3. Gunakan konfigurasi berikut:
 
 ```txt
@@ -134,7 +188,7 @@ Output Directory: dist
 Install Command: npm install
 ```
 
-4. Isi Environment Variables di Vercel:
+4. Isi Environment Variables frontend:
 
 ```txt
 VITE_API_BASE_URL=https://domain-backend-anda.com/api
@@ -143,17 +197,13 @@ VITE_APP_NAME=IT Ticketing System
 VITE_APP_ENV=production
 ```
 
-5. Pada environment backend, sesuaikan juga:
+Gunakan domain backend Vercel yang sudah jadi, misalnya:
 
 ```txt
-APP_ENV=production
-API_PUBLIC_URL=https://domain-backend-anda.com
-FRONTEND_ORIGIN=https://domain-frontend-anda.vercel.app
-FRONTEND_APP_URL=https://domain-frontend-anda.vercel.app
-DATABASE_SSL=true
+VITE_API_BASE_URL=https://domain-backend-anda.vercel.app/api
 ```
 
-Catatan: backend Express + PostgreSQL di project ini tidak ikut dideploy oleh konfigurasi Vercel frontend. Deploy backend ke layanan Node.js yang mendukung long-running server dan PostgreSQL, lalu arahkan `VITE_API_BASE_URL` ke endpoint backend tersebut.
+Catatan: database PostgreSQL tetap harus memakai provider eksternal seperti Neon, Supabase, Railway, atau layanan PostgreSQL lain. Vercel hanya menjalankan frontend dan serverless function backend.
 
 ## Lampiran Cloudflare R2
 

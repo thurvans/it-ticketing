@@ -10,11 +10,11 @@ import {
   sendPasswordResetEmail,
 } from "./mailService.js";
 import { deleteStoredObjects, signObjectUrl, uploadObjectBuffer } from "./storageService.js";
-import { ATTACHMENT_MAX_MB } from "../../shared/attachmentRules.js";
+import { ATTACHMENT_MAX_MB } from "./shared/attachmentRules.js";
 import {
   WORKSPACE_LOGO_MAX_BYTES,
   validateWorkspaceLogoDescriptor,
-} from "../../shared/workspaceLogoRules.js";
+} from "./shared/workspaceLogoRules.js";
 import {
   getDefaultRolePermissions,
   getDefaultSystemSettings,
@@ -22,7 +22,7 @@ import {
   PROFILE_ID_START,
   REPORT_GROUP_BY_OPTIONS,
   ROLES,
-} from "../../shared/workspaceSchema.js";
+} from "./shared/workspaceSchema.js";
 
 const REPORT_GROUP_BY_OPTION_SET = new Set(REPORT_GROUP_BY_OPTIONS);
 const DEFAULT_SYSTEM_SETTINGS = getDefaultSystemSettings();
@@ -516,7 +516,10 @@ async function ensureDefaultSystemAccess(client) {
 }
 
 export async function initializeDatabase() {
-  await ensureDatabaseExists();
+  if (config.autoCreateDatabase) {
+    await ensureDatabaseExists();
+  }
+
   await createDomainTables(pool);
 
   await withTransaction(async (client) => {

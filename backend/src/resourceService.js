@@ -3,13 +3,13 @@ import { pool, withTransaction } from "./db.js";
 import {
   ATTACHMENT_MAX_BYTES,
   validateAttachmentDescriptor,
-} from "../../shared/attachmentRules.js";
+} from "./shared/attachmentRules.js";
 import {
   buildTicketNumberPrefix,
   PRIORITY_OPTIONS as PRIORITY_VALUES,
   REPORT_GROUP_BY_OPTIONS,
   STATUS_OPTIONS as STATUS_VALUES,
-} from "../../shared/workspaceSchema.js";
+} from "./shared/workspaceSchema.js";
 import {
   createPresignedUploadBatch,
   deleteStoredObjects,

@@ -1,8 +1,8 @@
 import cors from "cors";
 import express from "express";
 import { config } from "./config.js";
-import { ATTACHMENT_MAX_MB } from "../../shared/attachmentRules.js";
-import { WORKSPACE_LOGO_MAX_MB } from "../../shared/workspaceLogoRules.js";
+import { ATTACHMENT_MAX_MB } from "./shared/attachmentRules.js";
+import { WORKSPACE_LOGO_MAX_MB } from "./shared/workspaceLogoRules.js";
 import {
   activateAccount,
   deleteManagedProfile,
@@ -51,6 +51,7 @@ import {
 } from "./resourceService.js";
 
 const app = express();
+let initializationPromise = null;
 
 process.env.NODE_ENV = config.appEnv;
 app.set("env", config.appEnv);
@@ -58,10 +59,26 @@ app.set("env", config.appEnv);
 app.disable("x-powered-by");
 app.use(
   cors({
-    origin: config.frontendOrigin,
+    origin(origin, callback) {
+      if (!origin || config.frontendOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Origin tidak diizinkan oleh konfigurasi CORS."));
+    },
     credentials: false,
   }),
 );
+app.use(async (_request, _response, next) => {
+  try {
+    initializationPromise ||= initializeDatabase();
+    await initializationPromise;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 app.use(express.json({ limit: "5mb" }));
 
 function getBearerToken(request) {
@@ -624,9 +641,12 @@ app.delete("/api/tickets/:ticketId", requireAuth, async (request, response) => {
   }
 });
 
-async function startServer() {
-  await initializeDatabase();
+app.use((error, _request, response, _next) => {
+  console.error("Backend request gagal:", error);
+  sendError(response, error, 500);
+});
 
+async function startServer() {
   const server = app.listen(config.port, () => {
     console.log(`Backend Express berjalan di http://localhost:${config.port}`);
   });
@@ -637,7 +657,11 @@ async function startServer() {
   });
 }
 
-startServer().catch((error) => {
-  console.error("Inisialisasi backend gagal:", error);
-  process.exitCode = 1;
-});
+if (!process.env.VERCEL) {
+  startServer().catch((error) => {
+    console.error("Inisialisasi backend gagal:", error);
+    process.exitCode = 1;
+  });
+}
+
+export default app;

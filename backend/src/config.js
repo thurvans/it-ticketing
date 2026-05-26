@@ -43,10 +43,20 @@ function trimTrailingSlash(value = "") {
   return String(value || "").replace(/\/+$/, "");
 }
 
+function toOriginList(value = "", fallback = "http://localhost:5173") {
+  const origins = String(value || fallback)
+    .split(",")
+    .map((origin) => trimTrailingSlash(origin))
+    .filter(Boolean);
+
+  return origins.length ? origins : [fallback];
+}
+
 const r2AccountId = String(process.env.R2_ACCOUNT_ID || "").trim();
 const r2Endpoint = trimTrailingSlash(
   process.env.R2_ENDPOINT || (r2AccountId ? `https://${r2AccountId}.r2.cloudflarestorage.com` : ""),
 );
+const frontendOrigins = toOriginList(process.env.FRONTEND_ORIGIN);
 
 export const config = {
   appEnv,
@@ -54,10 +64,12 @@ export const config = {
   appName: process.env.APP_NAME || "IT Ticketing System",
   port: toNumber(process.env.PORT, 3001),
   databaseUrl: process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/it_ticketing",
-  frontendOrigin: process.env.FRONTEND_ORIGIN || "http://localhost:5173",
-  frontendAppUrl: trimTrailingSlash(process.env.FRONTEND_APP_URL || process.env.FRONTEND_ORIGIN || "http://localhost:5173"),
+  frontendOrigin: frontendOrigins[0],
+  frontendOrigins,
+  frontendAppUrl: trimTrailingSlash(process.env.FRONTEND_APP_URL || frontendOrigins[0]),
   apiPublicUrl: process.env.API_PUBLIC_URL || `http://localhost:${toNumber(process.env.PORT, 3001)}`,
   databaseSsl: toBoolean(process.env.DATABASE_SSL, false),
+  autoCreateDatabase: toBoolean(process.env.AUTO_CREATE_DATABASE, appEnv !== "production"),
   sessionTtlDays: toNumber(process.env.SESSION_TTL_DAYS, 30),
   jwtSecret: process.env.JWT_SECRET || "change-this-secret",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
