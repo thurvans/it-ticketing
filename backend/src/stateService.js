@@ -464,10 +464,10 @@ async function createDomainTables(client) {
           ),
           $1
         ),
-        true
+        exists (select 1 from profiles where id ~ '^\\d{6}$')
       )
     `,
-    [PROFILE_ID_START - 1],
+    [PROFILE_ID_START],
   );
 }
 
