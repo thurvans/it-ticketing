@@ -77,10 +77,10 @@ IT Ticketing System adalah aplikasi helpdesk internal untuk mencatat, memantau, 
 1. Install dependency frontend
 
 ```bash
-npm install
+npm --prefix frontend install
 ```
 
-2. Siapkan environment backend terlebih dulu. Frontend akan membaca source of truth dari `backend/.env`.
+2. Siapkan environment backend terlebih dulu. Frontend membaca konfigurasi utama dari `backend/.env`, dengan override opsional dari `frontend/.env`.
 
 3. Jalankan frontend
 
@@ -141,13 +141,14 @@ Catatan: `db:seed` akan menjalankan `truncate` pada tabel aplikasi sesuai isi [d
 - `APP_ENV=development` untuk mode development
 - `APP_ENV=production` untuk mode production
 - Jika perlu override per environment, Anda bisa menambahkan file seperti `backend/.env.production`
-- Frontend tidak lagi membutuhkan `.env` terpisah untuk `VITE_API_BASE_URL`, `VITE_APP_BASE_URL`, atau `VITE_APP_NAME`
+- File frontend berada di `frontend/.env`; `VITE_API_BASE_URL` boleh berupa URL backend tanpa `/api` karena build akan menormalkannya otomatis.
 
 ## Deploy ke Vercel dengan Frontend dan Backend Terpisah
 
 Project ini disiapkan sebagai dua project Vercel dari repository yang sama:
 
 - Frontend: Root Directory repository utama, memakai [vercel.json](</c:/webtiketingit/vercel.json>)
+- Frontend source: folder `frontend`
 - Backend: Root Directory `backend`, memakai [backend/vercel.json](</c:/webtiketingit/backend/vercel.json>)
 
 Deploy backend terlebih dahulu supaya URL API sudah tersedia saat frontend dibuild.
@@ -199,7 +200,7 @@ https://domain-backend-anda.vercel.app/api/health
 
 ### Frontend Vercel
 
-Project utama sudah menyertakan [vercel.json](</c:/webtiketingit/vercel.json>) untuk build Vite dan rewrite React Router ke `index.html`.
+Project utama sudah menyertakan [vercel.json](</c:/webtiketingit/vercel.json>) untuk build Vite dari folder `frontend` dan rewrite React Router ke `index.html`.
 
 1. Buat project Vercel kedua dari repository yang sama.
 2. Set Root Directory ke root repository.
@@ -207,9 +208,9 @@ Project utama sudah menyertakan [vercel.json](</c:/webtiketingit/vercel.json>) u
 
 ```txt
 Framework Preset: Vite
-Build Command: npm run build
-Output Directory: dist
-Install Command: npm install
+Build Command: npm --prefix frontend run build
+Output Directory: frontend/dist
+Install Command: npm --prefix frontend install
 ```
 
 4. Isi Environment Variables frontend:
@@ -254,6 +255,7 @@ Akun yang tersedia:
 
 ## Struktur Baru
 
+- Source frontend berada di folder `frontend/`.
 - Frontend tidak lagi memiliki mode demo lokal.
 - Data aplikasi dipersist ke PostgreSQL melalui backend Express.
 - `schema.sql` dan `seed.sql` di root menjadi sumber setup database yang nyata.
@@ -263,4 +265,4 @@ Akun yang tersedia:
 - Email backend sekarang mendukung SMTP Brevo untuk aktivasi akun, reset password, dan notifikasi tiket bila `BREVO_SMTP_*` serta `MAIL_*` sudah diisi di `backend/.env`.
 - Untuk notifikasi tiket via email, aktifkan juga flag `enable_email_notifications` dari pengaturan sistem.
 - Lampiran di mode backend sekarang bisa diunggah ke Cloudflare R2 bila konfigurasi `R2_*` tersedia.
-- Seluruh sumber konfigurasi frontend/backend sekarang dipusatkan ke `backend/.env`.
+- Sumber konfigurasi utama frontend/backend dipusatkan ke `backend/.env`, dengan override frontend opsional di `frontend/.env`.
