@@ -9,7 +9,7 @@ const baseEnvPath = path.join(backendRootDir, ".env");
 
 dotenv.config({ path: baseEnvPath });
 
-const appEnv = normalizeAppEnv(process.env.APP_ENV);
+const appEnv = normalizeAppEnv(process.env.APP_ENV || process.env.NODE_ENV);
 const appEnvFilePath = path.join(backendRootDir, `.env.${appEnv}`);
 
 if (fs.existsSync(appEnvFilePath)) {
@@ -19,7 +19,7 @@ if (fs.existsSync(appEnvFilePath)) {
 function normalizeAppEnv(value) {
   const normalized = String(value || "").trim().toLowerCase();
 
-  if (normalized === "production") {
+  if (normalized === "production" || process.env.VERCEL) {
     return "production";
   }
 
@@ -57,13 +57,23 @@ const r2Endpoint = trimTrailingSlash(
   process.env.R2_ENDPOINT || (r2AccountId ? `https://${r2AccountId}.r2.cloudflarestorage.com` : ""),
 );
 const frontendOrigins = toOriginList(process.env.FRONTEND_ORIGIN);
+const databaseUrl =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.POSTGRES_URL_NON_POOLING ||
+  "";
+
+if (appEnv === "production" && !databaseUrl) {
+  throw new Error("DATABASE_URL atau POSTGRES_URL wajib diisi pada environment production.");
+}
 
 export const config = {
   appEnv,
   isProduction: appEnv === "production",
   appName: process.env.APP_NAME || "IT Ticketing System",
   port: toNumber(process.env.PORT, 3001),
-  databaseUrl: process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/it_ticketing",
+  databaseUrl: databaseUrl || "postgresql://postgres:postgres@localhost:5432/it_ticketing",
   frontendOrigin: frontendOrigins[0],
   frontendOrigins,
   frontendAppUrl: trimTrailingSlash(process.env.FRONTEND_APP_URL || frontendOrigins[0]),
