@@ -112,6 +112,30 @@ Backend akan otomatis:
 - memastikan default `system_settings` dan `role_permissions` tersedia
 - membuka API di `http://localhost:3001/api`
 
+## Migrasi dan Seed Database
+
+Jalankan dari root project:
+
+```bash
+npm run db:migrate
+```
+
+Perintah ini memakai konfigurasi `backend/.env`, membuat tabel yang belum ada, menjalankan perubahan schema ringan, dan memastikan default system settings serta role permissions tersedia.
+
+Untuk mengisi ulang data demo dari [db/seed.sql](</c:/webtiketingit/db/seed.sql>):
+
+```bash
+npm run db:seed
+```
+
+Untuk migrate lalu seed sekaligus:
+
+```bash
+npm run db:setup
+```
+
+Catatan: `db:seed` akan menjalankan `truncate` pada tabel aplikasi sesuai isi [db/seed.sql](</c:/webtiketingit/db/seed.sql>), jadi gunakan hanya untuk database development/demo atau database baru.
+
 ## Pengaturan Mode
 
 - `APP_ENV=development` untuk mode development
